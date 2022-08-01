@@ -49,6 +49,7 @@ $config = [
             'port' => 6379,
             'database' => 0,
         ],
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
