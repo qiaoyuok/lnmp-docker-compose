@@ -116,9 +116,9 @@ FROM mysql:5.7.39
 MAINTAINER 孙大圣 1589946526@qq.com
 
 CMD ["mysqld"]
-````
 
 ````
+
 ### 六、docker-compose.yml
 ````azure
 version: "3"
