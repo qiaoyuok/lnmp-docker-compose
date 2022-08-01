@@ -10,7 +10,7 @@ WORKDIR /working
 
 RUN mkdir -p /usr/share/nginx/logs
 
-RUN apt-get update --fix-missing && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev  \
+RUN apt-get update --fix-missing && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev zip unzip \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install gd mysqli opcache pdo_mysql gd zip
 
