@@ -35,8 +35,8 @@ services:
       - "16379:6379"
     volumes:
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/redis/redis.conf:/etc/redis/redis.conf
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/data/redis:/var/lib/redis
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/redis:/var/log/redis
+      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/data/redis:/data/data
+      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/redis:/data/logs
     networks:
       - lnmp
   mysql:
