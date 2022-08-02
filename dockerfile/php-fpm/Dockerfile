@@ -9,7 +9,7 @@ RUN date -R
 WORKDIR /working
 
 RUN sed -i "s@http://deb.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list \
-    sed -i "s@http://security.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list \
+    && sed -i "s@http://security.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list \
     && cat /etc/apt/sources.list \
     && rm -Rf /var/lib/apt/lists/* \
     && mkdir -p /usr/share/nginx/logs
