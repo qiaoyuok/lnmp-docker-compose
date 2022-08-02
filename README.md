@@ -9,6 +9,7 @@
 > 
 
 <font color=red>项目根路径替换为自己的：/Users/sunqiaoyu/GolandProjects/go/src/lnmp</font>
+>sed -i "s@/Users/sunqiaoyu/GolandProjects/go/src/lnmp@/root/lnmp/lnmp-docker-compose@g" docker-compose.yml
 
 ````azure
 ├── config  #配置文件目录
@@ -63,23 +64,31 @@ FROM php:7.4-fpm
 
 MAINTAINER  孙大圣 1589946526@qq.com
 
+#时区
+ENV TZ Asia/Shanghai
+RUN date -R
+
 WORKDIR /working
 
-RUN mkdir -p /usr/share/nginx/logs
+RUN sed -i "s@http://deb.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list \
+    && sed -i "s@http://security.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list \
+    && cat /etc/apt/sources.list \
+    && rm -Rf /var/lib/apt/lists/* \
+    && mkdir -p /usr/share/nginx/logs
 
-RUN apt-get update --fix-missing && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev  \
-                         && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
-                         && docker-php-ext-install gd mysqli opcache pdo_mysql gd zip
+RUN apt-get update --fix-missing && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev zip unzip \
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install gd mysqli opcache pdo_mysql gd zip
 
-                         ENV PHPREDIS_VERSION 4.0.1
-                         ENV PHPXDEBUG_VERSION 3.1.4
-                         ENV PHPSWOOLE_VERSION 4.8.11
-                         ENV PHPMONGODB_VERSION 1.5.3
-                         RUN pecl install redis-$PHPREDIS_VERSION \
-                         && pecl install xdebug-$PHPXDEBUG_VERSION \
-                         && pecl install swoole-$PHPSWOOLE_VERSION \
-                         && pecl install mongodb-$PHPMONGODB_VERSION \
-                         && docker-php-ext-enable redis xdebug swoole mongodb mysqli
+ENV PHPREDIS_VERSION 4.0.1
+ENV PHPXDEBUG_VERSION 3.1.4
+ENV PHPSWOOLE_VERSION 4.8.11
+ENV PHPMONGODB_VERSION 1.5.3
+RUN pecl install redis-$PHPREDIS_VERSION \
+    && pecl install xdebug-$PHPXDEBUG_VERSION \
+    && pecl install swoole-$PHPSWOOLE_VERSION \
+    && pecl install mongodb-$PHPMONGODB_VERSION \
+    && docker-php-ext-enable redis xdebug swoole mongodb mysqli
 
 # install composer new
 # https://getcomposer.org/installer | https://install.phpcomposer.com/installer
@@ -124,60 +133,63 @@ CMD ["mysqld"]
 version: "3"
 
 services:
-  nginx:
-    build: "./dockerfile/nginx"
-    container_name: ng121
-    ports:
-      - "1080:80"
-    volumes:
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/nginx/conf.d:/etc/nginx/conf.d
+nginx:
+build: "./dockerfile/nginx"
+container_name: ng121
+ports:
+    - "1080:80"
+      - "1081-1181:1081-1181"
+volumes:
+    - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/nginx/conf.d:/etc/nginx/conf.d
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/nginx/nginx.conf:/etc/nginx/nginx.conf
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/www:/usr/share/nginx/html
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/nginx:/var/log/nginx/
-    networks:
-      - lnmp
-    depends_on:
-      - php
-  php:
-    build: "./dockerfile/php-fpm"
-    container_name: php74
-    volumes:
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/www:/usr/share/nginx/html
+networks:
+    - lnmp
+depends_on:
+    - php
+php:
+build: "./dockerfile/php-fpm"
+container_name: php74
+volumes:
+    - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/www:/usr/share/nginx/html
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/php:/usr/share/nginx/logs
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/php-fpm/php:/usr/local/etc/php
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/php-fpm/php-fpm.d:/usr/local/etc/php-fpm.d
-    networks:
-      - lnmp
-    depends_on:
-      - redis
-      - mysql
-  redis:
-    build: "./dockerfile/redis"
-    container_name: redis505
-    ports:
-      - "16379:6379"
-    volumes:
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/redis/redis.conf:/etc/redis/redis.conf
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/data/redis:/var/lib/redis
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/redis:/var/log/redis
-    networks:
-      - lnmp
-  mysql:
-    build: "./dockerfile/mysql"
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ALLOW_EMPTY_PASSWORD: root
-    ports:
-      - "13306:3306"
-    volumes:
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/mysql/my.cnf:/etc/my.cnf
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/data/mysql:/var/lib/mysql
-      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/mysql:/var/log/mysql
-    networks:
-      - lnmp
 networks:
-  lnmp:
+    - lnmp
+depends_on:
+    - redis
+      - mysql
+redis:
+build: "./dockerfile/redis"
+container_name: redis505
+ports:
+    - "16379:6379"
+volumes:
+    - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/redis/redis.conf:/etc/redis/redis.conf
+      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/data/redis:/data/data
+      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/redis:/data/logs
+networks:
+    - lnmp
+mysql:
+build: "./dockerfile/mysql"
+container_name: mysql
+environment:
+MYSQL_ROOT_PASSWORD: root
+MYSQL_ALLOW_EMPTY_PASSWORD: root
+ports:
+    - "13306:3306"
+volumes:
+    - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/mysql/my.cnf:/etc/my.cnf
+      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/data/mysql:/var/lib/mysql/data
+      - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/logs/mysql:/var/lib/mysql/log
+networks:
+    - lnmp
+networks:
+lnmp:
+
+# sed -i "s@/Users/sunqiaoyu/GolandProjects/go/src/lnmp@/root/lnmp/lnmp-docker-compose@g" docker-compose.yml
 ````
 
 

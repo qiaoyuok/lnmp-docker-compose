@@ -56,3 +56,5 @@ services:
       - lnmp
 networks:
   lnmp:
+
+# sed -i "s@/Users/sunqiaoyu/GolandProjects/go/src/lnmp@/root/lnmp/lnmp-docker-compose@g" docker-compose.yml
