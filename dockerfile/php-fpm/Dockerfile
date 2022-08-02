@@ -8,7 +8,10 @@ RUN date -R
 
 WORKDIR /working
 
-RUN mkdir -p /usr/share/nginx/logs
+COPY sources.list /etc/apt/sources.list
+
+RUN mkdir -p /usr/share/nginx/logs && rm -Rf /var/lib/apt/lists/*
+
 
 RUN apt-get update --fix-missing && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev zip unzip \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
