@@ -8,10 +8,10 @@ RUN date -R
 
 WORKDIR /working
 
-COPY sources.list /etc/apt/sources.list
-
-RUN mkdir -p /usr/share/nginx/logs && rm -Rf /var/lib/apt/lists/*
-
+RUN sed -i "s@http://deb.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list \
+    && cat /etc/apt/sources.list \
+    && rm -Rf /var/lib/apt/lists/* \
+    && mkdir -p /usr/share/nginx/logs
 
 RUN apt-get update --fix-missing && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev zip unzip \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
