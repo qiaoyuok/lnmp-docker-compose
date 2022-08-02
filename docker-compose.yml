@@ -6,7 +6,7 @@ services:
     container_name: ng121
     ports:
       - "1080:80"
-      - "1081:1081"
+      - "1081-1181:1081-1181"
     volumes:
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/nginx/conf.d:/etc/nginx/conf.d
       - /Users/sunqiaoyu/GolandProjects/go/src/lnmp/config/nginx/nginx.conf:/etc/nginx/nginx.conf
